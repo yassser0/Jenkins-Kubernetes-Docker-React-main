@@ -5,16 +5,16 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Check out the 'main' branch from your GitHub repository
-                git branch: 'main', url: 'https://github.com/Saisamarth21/Jenkins-Kubernetes-Docker-React.git'
+                git branch: 'main', url: 'https://github.com/yassser0/Jenkins-Kubernetes-Docker-React-main'
             }
         }
         stage('Build Docker Image') {
             steps {
                 script {
                     if (isUnix()) {
-                        sh 'docker build -t saisamarth21/jenkins-kubernetes-docker-react:latest .'
+                        sh 'docker build -t yasser825/jenkins-kubernetes-docker-react:latest .'
                     } else {
-                        bat 'docker build -t saisamarth21/jenkins-kubernetes-docker-react:latest .'
+                        bat 'docker build -t yasser825/jenkins-kubernetes-docker-react:latest .'
                     }
                 }
             }
@@ -26,12 +26,12 @@ pipeline {
                         if (isUnix()) {
                             sh '''
                               echo "$DOCKERHUB_PSW" | docker login --username "$DOCKERHUB_USR" --password-stdin
-                              docker push saisamarth21/jenkins-kubernetes-docker-react:latest
+                              docker push yasser825/jenkins-kubernetes-docker-react:latest
                             '''
                         } else {
                             // On Windows, reference environment variables with %VAR%
                             bat 'docker login --username %DOCKERHUB_USR% --password %DOCKERHUB_PSW%'
-                            bat 'docker push saisamarth21/jenkins-kubernetes-docker-react:latest'
+                            bat 'docker push yasser825/jenkins-kubernetes-docker-react:latest'
                         }
                     }
                 }
