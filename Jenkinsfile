@@ -4,33 +4,21 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                script {
-                    checkout scm
-                }
+                // Check out the 'main' branch from your GitHub repository
+                git branch: 'master', url: 'https://github.com/yassser0/Jenkins-Kubernetes-Docker-React-main'
             }
         }
-
         stage('Build Docker Image') {
             steps {
                 script {
-                    def imageTag = "yasser825/jenkins-kubernetes-docker-react:${env.BUILD_NUMBER}"
-                    def latestTag = "yasser825/jenkins-kubernetes-docker-react:latest"
-
                     if (isUnix()) {
-                        sh """
-                          docker build -t ${imageTag} .
-                          docker tag ${imageTag} ${latestTag}
-                        """
+                        sh 'docker build -t yasser825/jenkins-kubernetes-docker-react:latest .'
                     } else {
-                        bat """
-                          docker build -t ${imageTag} .
-                          docker tag ${imageTag} ${latestTag}
-                        """
+                        bat 'docker build -t yasser825/jenkins-kubernetes-docker-react:latest .'
                     }
                 }
             }
         }
-
         stage('Docker Login & Push') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKERHUB_USR', passwordVariable: 'DOCKERHUB_PSW')]) {
@@ -41,49 +29,48 @@ pipeline {
                               docker push yasser825/jenkins-kubernetes-docker-react:latest
                             '''
                         } else {
-                            bat '''
-                              docker login --username %DOCKERHUB_USR% --password %DOCKERHUB_PSW%
-                              docker push yasser825/jenkins-kubernetes-docker-react:latest
-                            '''
+                            // On Windows, reference environment variables with %VAR%
+                            bat 'docker login --username %DOCKERHUB_USR% --password %DOCKERHUB_PSW%'
+                            bat 'docker push yasser825/jenkins-kubernetes-docker-react:latest'
                         }
                     }
                 }
             }
         }
-
         stage('Deploy to Kubernetes') {
-            steps {
-                script {
-                    if (isUnix()) {
-                        sh '''
-                          echo "Checking if K3s is running..."
-                          systemctl is-active --quiet k3s || { echo "❌ K3s is NOT running!"; exit 1; }
+    steps {
+        script {
+            if (isUnix()) {
+                sh '''
+                  echo "Checking if K3s is running..."
+                  systemctl is-active --quiet k3s || { echo "❌ K3s is NOT running!"; exit 1; }
 
-                          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-                          kubectl apply -f react-dpl.yml --validate=false
-                          kubectl rollout status deployment/jenkins-kubernetes-docker-react-deployment
-                        '''
-                    } else {
-                        bat '''
-                          echo Checking if K3s is running...
-                          sc query k3s | findstr "RUNNING" || (echo "❌ K3s is NOT running!" & exit 1)
+                  export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+                  kubectl apply -f react-dpl.yml --validate=false
+                  kubectl rollout status deployment/jenkins-kubernetes-docker-react-deployment
+                '''
+            } else {
+                bat '''
+                  echo Checking if K3s is running...
+                  sc query k3s | findstr "RUNNING" || (echo "❌ K3s is NOT running!" & exit 1)
 
-                          set KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-                          kubectl apply -f react-dpl.yml --validate=false
-                          kubectl rollout status deployment/jenkins-kubernetes-docker-react-deployment
-                        '''
-                    }
-                }
+                  set KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+                  kubectl apply -f react-dpl.yml --validate=false
+                  kubectl rollout status deployment/jenkins-kubernetes-docker-react-deployment
+                '''
             }
         }
     }
+}
+    
 
     post {
         failure {
-            echo '❌ The pipeline failed.'
+            echo 'The pipeline failed.'
         }
         success {
-            echo '✅ Deployment succeeded!'
+            echo 'Deployment succeeded!'
         }
     }
+}
 }
