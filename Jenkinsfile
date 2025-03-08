@@ -37,20 +37,16 @@ pipeline {
                 }
             }
         }
-        stage('Deploy to Kubernetes') {
-            steps {
-                withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
-                    script {
-                        if (isUnix()) {
-                            sh '''
-                              kubectl apply -f react-dpl.yml --validate=false
-                              kubectl rollout status deployment/jenkins-kubernetes-docker-react-deployment
-                            '''
-                        } else {
-                            bat 'kubectl apply -f react-dpl.yml --validate=false'
-                            bat 'kubectl rollout status deployment/jenkins-kubernetes-docker-react-deployment'
-                        }
-                    }
+        stage("Update Kubernetes Deployment") {
+           steps {
+                echo "Updating Kubernetes Deployment..."
+                script {
+                    sh '''
+                   export KUBECONFIG=/home/azureuser/.kube/config   # Adjust the path if necessary
+                   kubectl set image deployment/todoappproject-deployment todoappproject-container=achrafbrini007/todoappproject:latest --record
+                    kubectl rollout restart deployment/todoappproject-deployment
+                   kubectl rollout status deployment/todoappproject-deployment
+                    '''
                 }
             }
         }
