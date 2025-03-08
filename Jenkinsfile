@@ -19,22 +19,26 @@ pipeline {
                 }
             }
         }
-        stage('Docker Login & Push') {
+                stage('Docker Login & Push') {
             steps {
-                script {
-                    if (isUnix()) {
-                        sh '''
-                          docker login --username "yasser825" --password "your-dockerhub-password"
-                          docker push yasser825/jenkins-kubernetes-docker-react:latest
-                        '''
-                    } else {
-                        // On Windows, use environment variables for security
-                        bat 'docker login --username "yasser825" --password "your-dockerhub-password"'
-                        bat 'docker push yasser825/jenkins-kubernetes-docker-react:latest'
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', 
+                                                 usernameVariable: 'DOCKERHUB_USR', 
+                                                 passwordVariable: 'DOCKERHUB_PSW')]) {
+                    script {
+                        if (isUnix()) {
+                            sh '''
+                              echo "$DOCKERHUB_PSW" | docker login --username "$DOCKERHUB_USR" --password-stdin
+                              docker push yasser825/jenkins-kubernetes-docker-react:latest
+                            '''
+                        } else {
+                            bat 'docker login --username %DOCKERHUB_USR% --password %DOCKERHUB_PSW%'
+                            bat 'docker push yasser825/jenkins-kubernetes-docker-react:latest'
+                        }
                     }
                 }
             }
         }
+
         stage("Update Kubernetes Deployment") {
            steps {
                 echo "Updating Kubernetes Deployment..."
