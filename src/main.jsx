@@ -172,7 +172,7 @@ const App = () => {
         ))}
       </ul>
       {todos.length > 0 && (
-        <button onClick={clearTodos} style={styles.clearButton}>Clear All Todos</button>
+        <button onClick={clearTodos} style={styles.clearButton}>Clear All</button>
       )}
     </div>
   );
