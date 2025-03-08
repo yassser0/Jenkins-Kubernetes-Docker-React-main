@@ -39,12 +39,11 @@ pipeline {
             }
         }
 
-        stage("Update Kubernetes Deployment") {
-           steps {
-                echo "Updating Kubernetes Deployment..."
+        stage('Deploy to K3s') {
+            steps {
                 script {
                     sh '''
-                        export KUBECONFIG=/home/azureuser/.kube/config  # Ensure this path is correct
+                        export KUBECONFIG=/etc/rancher/k3s/k3s.yaml  # Use K3s config
                         kubectl set image deployment/todoappproject-deployment todoappproject-container=yasser825/jenkins-kubernetes-docker-react:latest --record
                         kubectl rollout restart deployment/todoappproject-deployment
                         kubectl rollout status deployment/todoappproject-deployment
