@@ -49,24 +49,6 @@ pipeline {
             }
         }
     }
-
-    post {
-        always {
-            script {
-                echo 'Cleaning up workspace and Docker resources...'
-                sh '''
-                # Remove unused Docker images, containers, and volumes
-                docker system prune -af
-                docker volume prune -f
-
-                # Cleanup Jenkins workspace
-                rm -rf $WORKSPACE/*
-
-                # Clear Kubernetes logs with sudo fix
-                echo "jenkins" | sudo -S journalctl --vacuum-time=1d
-                '''
-            }
-        }
         failure {
             echo 'The pipeline failed.'
         }
