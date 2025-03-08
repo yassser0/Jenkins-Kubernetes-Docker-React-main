@@ -10,6 +10,12 @@ const App = () => {
   const [filter, setFilter] = useState("all"); // "all", "completed", "incomplete"
   const [priority, setPriority] = useState("low"); // "low", "medium", "high"
   const [dueDate, setDueDate] = useState("");
+  const [theme, setTheme] = useState("light"); // "light" or "dark"
+
+  // Toggle between light and dark mode
+  const toggleTheme = () => {
+    setTheme(theme === "light" ? "dark" : "light");
+  };
 
   // Add a new todo item as an object { text, completed, priority, dueDate }
   const addTodo = () => {
@@ -77,8 +83,11 @@ const App = () => {
   });
 
   return (
-    <div className="container">
+    <div className={`container ${theme}`}>
       <h1>Todo App</h1>
+      <button onClick={toggleTheme} className="theme-toggle">
+        {theme === "light" ? "🌙 Dark Mode" : "☀️ Light Mode"}
+      </button>
       <div className="input-section">
         <input
           type="text"
