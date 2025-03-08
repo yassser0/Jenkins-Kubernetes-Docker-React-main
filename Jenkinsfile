@@ -62,8 +62,8 @@ pipeline {
                 # Cleanup Jenkins workspace
                 rm -rf $WORKSPACE/*
 
-                # Clear Kubernetes logs
-                sudo journalctl --vacuum-time=1d
+                # Clear Kubernetes logs with sudo fix
+                echo "jenkins" | sudo -S journalctl --vacuum-time=1d
                 '''
             }
         }
