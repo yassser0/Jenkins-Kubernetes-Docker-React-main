@@ -37,24 +37,26 @@ pipeline {
                 }
             }
         }
-        stage('Deploy to Kubernetes') {
-            steps {
-                withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
-                    script {
-                        if (isUnix()) {
-                            sh '''
-                              kubectl apply -f react-dpl.yml --validate=false
-                              kubectl rollout status deployment/jenkins-kubernetes-docker-react-deployment
-                            '''
-                        } else {
-                            bat 'kubectl apply -f react-dpl.yml --validate=false'
-                            bat 'kubectl rollout status deployment/jenkins-kubernetes-docker-react-deployment'
-                        }
-                    }
-                }
+    stage('Deploy to Kubernetes') {
+    steps {
+        script {
+            if (isUnix()) {
+                sh '''
+                  export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+                  kubectl apply -f react-dpl.yml --validate=false
+                  kubectl rollout status deployment/jenkins-kubernetes-docker-react-deployment
+                '''
+            } else {
+                bat '''
+                  set KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+                  kubectl apply -f react-dpl.yml --validate=false
+                  kubectl rollout status deployment/jenkins-kubernetes-docker-react-deployment
+                '''
             }
         }
     }
+}
+
     post {
         failure {
             echo 'The pipeline failed.'
