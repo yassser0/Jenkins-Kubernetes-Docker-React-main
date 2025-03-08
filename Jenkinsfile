@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        KUBECONFIG = "/etc/rancher/k3s/k3s.yaml"
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -11,7 +15,9 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh 'docker build -t yasser825/jenkins-kubernetes-docker-react:latest .'
+                    sh '''
+                    docker build -t yasser825/jenkins-kubernetes-docker-react:latest .
+                    '''
                 }
             }
         }
@@ -23,8 +29,8 @@ pipeline {
                                                  passwordVariable: 'DOCKERHUB_PSW')]) {
                     script {
                         sh '''
-                          echo "$DOCKERHUB_PSW" | docker login --username "$DOCKERHUB_USR" --password-stdin
-                          docker push yasser825/jenkins-kubernetes-docker-react:latest
+                        echo "$DOCKERHUB_PSW" | docker login --username "$DOCKERHUB_USR" --password-stdin
+                        docker push yasser825/jenkins-kubernetes-docker-react:latest
                         '''
                     }
                 }
@@ -35,10 +41,9 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-                        kubectl set image deployment/jenkins-kubernetes-docker-react-deployment jenkins-kubernetes-docker-react=yasser825/jenkins-kubernetes-docker-react:latest
-                        kubectl rollout restart deployment/jenkins-kubernetes-docker-react-deployment
-                        kubectl rollout status deployment/jenkins-kubernetes-docker-react-deployment
+                    kubectl set image deployment/jenkins-kubernetes-docker-react-deployment jenkins-kubernetes-docker-react=yasser825/jenkins-kubernetes-docker-react:latest
+                    kubectl rollout restart deployment/jenkins-kubernetes-docker-react-deployment
+                    kubectl rollout status deployment/jenkins-kubernetes-docker-react-deployment
                     '''
                 }
             }
@@ -46,6 +51,22 @@ pipeline {
     }
 
     post {
+        always {
+            script {
+                echo 'Cleaning up workspace and Docker resources...'
+                sh '''
+                # Remove unused Docker images, containers, and volumes
+                docker system prune -af
+                docker volume prune -f
+
+                # Cleanup Jenkins workspace
+                rm -rf $WORKSPACE/*
+
+                # Clear Kubernetes logs
+                sudo journalctl --vacuum-time=1d
+                '''
+            }
+        }
         failure {
             echo 'The pipeline failed.'
         }
