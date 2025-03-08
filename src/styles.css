@@ -1,0 +1,179 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background: #f0f2f5;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  
+  .container {
+    max-width: 600px;
+    width: 100%;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .input-section {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .todo-input,
+  .priority-select,
+  .due-date-input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+  
+  .add-button {
+    padding: 10px 15px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .add-button:hover {
+    background: #0056b3;
+  }
+  
+  .filter-section {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .filter-section button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    background: #f0f0f0;
+  }
+  
+  .filter-section button.active {
+    background: #007bff;
+    color: #fff;
+  }
+  
+  .todo-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .todo-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    transition: background 0.3s;
+  }
+  
+  .todo-item:hover {
+    background: #f9f9f9;
+  }
+  
+  .todo-text {
+    flex: 1;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .completed-text {
+    text-decoration: line-through;
+    color: #999;
+  }
+  
+  .priority {
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+    margin-left: 10px;
+  }
+  
+  .priority.low {
+    background: #d4edda;
+    color: #155724;
+  }
+  
+  .priority.medium {
+    background: #fff3cd;
+    color: #856404;
+  }
+  
+  .priority.high {
+    background: #f8d7da;
+    color: #721c24;
+  }
+  
+  .due-date {
+    font-size: 12px;
+    color: #666;
+    margin-left: 10px;
+  }
+  
+  .action-buttons {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .edit-button,
+  .delete-button,
+  .save-button,
+  .cancel-button,
+  .clear-button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .edit-button {
+    background: #ffc107;
+    color: #000;
+  }
+  
+  .delete-button {
+    background: #dc3545;
+    color: #fff;
+  }
+  
+  .save-button {
+    background: #28a745;
+    color: #fff;
+  }
+  
+  .cancel-button {
+    background: #6c757d;
+    color: #fff;
+  }
+  
+  .clear-button {
+    background: #dc3545;
+    color: #fff;
+    width: 100%;
+    margin-top: 20px;
+  }
+  
+  .clear-button:hover {
+    background: #c82333;
+  }
