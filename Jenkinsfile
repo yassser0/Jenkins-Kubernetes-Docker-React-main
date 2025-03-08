@@ -5,7 +5,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Check out the 'main' branch from your GitHub repository
-                git branch: 'main', url: 'https://github.com/yassser0/Jenkins-Kubernetes-Docker-React-main'
+                git branch: 'master', url: 'https://github.com/yassser0/Jenkins-Kubernetes-Docker-React-main'
             }
         }
         stage('Build Docker Image') {
