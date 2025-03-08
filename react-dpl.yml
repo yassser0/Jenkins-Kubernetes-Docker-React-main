@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: jenkins-kubernetes-docker-react
-        image: saisamarth21/jenkins-kubernetes-docker-react:latest   
+        image:  yasser825/jenkins-kubernetes-docker-react:latest   
         ports:
         - containerPort: 4173
 ---
