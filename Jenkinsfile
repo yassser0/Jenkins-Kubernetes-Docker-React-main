@@ -7,6 +7,7 @@ pipeline {
                 git branch: 'master', url: 'https://github.com/yassser0/Jenkins-Kubernetes-Docker-React-main'
             }
         }
+
         stage('Build Docker Image') {
             steps {
                 script {
@@ -14,31 +15,39 @@ pipeline {
                 }
             }
         }
-        stage('Docker Push') {
+
+        stage('Docker Login & Push') {
             steps {
-                script {
-                    sh '''
-                        echo "$DOCKERHUB_PSW" | docker login --username "$DOCKERHUB_USR" --password-stdin
-                        docker push yasser825/jenkins-kubernetes-docker-react:latest
-                    '''
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', 
+                                                 usernameVariable: 'DOCKERHUB_USR', 
+                                                 passwordVariable: 'DOCKERHUB_PSW')]) {
+                    script {
+                        sh '''
+                          echo "$DOCKERHUB_PSW" | docker login --username "$DOCKERHUB_USR" --password-stdin
+                          docker push yasser825/jenkins-kubernetes-docker-react:latest
+                        '''
+                    }
                 }
             }
         }
-        stage('Deploy to K3s') {
+
+        stage('Update Kubernetes Deployment') {
             steps {
                 script {
                     sh '''
-                        sudo KUBECONFIG=/etc/rancher/k3s/k3s.yaml kubectl set image deployment/todoappproject-deployment todoappproject-container=yasser825/jenkins-kubernetes-docker-react:latest
-                        sudo KUBECONFIG=/etc/rancher/k3s/k3s.yaml kubectl rollout restart deployment/todoappproject-deployment
-                        sudo KUBECONFIG=/etc/rancher/k3s/k3s.yaml kubectl rollout status deployment/todoappproject-deployment
+                        export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+                        kubectl set image deployment/jenkins-kubernetes-docker-react-deployment jenkins-kubernetes-docker-react=yasser825/jenkins-kubernetes-docker-react:latest
+                        kubectl rollout restart deployment/jenkins-kubernetes-docker-react-deployment
+                        kubectl rollout status deployment/jenkins-kubernetes-docker-react-deployment
                     '''
                 }
             }
         }
     }
+
     post {
         failure {
-            echo 'Deployment failed.'
+            echo 'The pipeline failed.'
         }
         success {
             echo 'Deployment succeeded!'
