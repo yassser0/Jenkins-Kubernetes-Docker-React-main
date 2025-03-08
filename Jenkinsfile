@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Check out the 'main' branch from your GitHub repository
+                // Check out the 'master' branch from your GitHub repository
                 git branch: 'master', url: 'https://github.com/yassser0/Jenkins-Kubernetes-Docker-React-main'
             }
         }
@@ -21,18 +21,16 @@ pipeline {
         }
         stage('Docker Login & Push') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKERHUB_USR', passwordVariable: 'DOCKERHUB_PSW')]) {
-                    script {
-                        if (isUnix()) {
-                            sh '''
-                              echo "$DOCKERHUB_PSW" | docker login --username "$DOCKERHUB_USR" --password-stdin
-                              docker push yasser825/jenkins-kubernetes-docker-react:latest
-                            '''
-                        } else {
-                            // On Windows, reference environment variables with %VAR%
-                            bat 'docker login --username %DOCKERHUB_USR% --password %DOCKERHUB_PSW%'
-                            bat 'docker push yasser825/jenkins-kubernetes-docker-react:latest'
-                        }
+                script {
+                    if (isUnix()) {
+                        sh '''
+                          docker login --username "yasser825" --password "your-dockerhub-password"
+                          docker push yasser825/jenkins-kubernetes-docker-react:latest
+                        '''
+                    } else {
+                        // On Windows, use environment variables for security
+                        bat 'docker login --username "yasser825" --password "your-dockerhub-password"'
+                        bat 'docker push yasser825/jenkins-kubernetes-docker-react:latest'
                     }
                 }
             }
@@ -42,10 +40,10 @@ pipeline {
                 echo "Updating Kubernetes Deployment..."
                 script {
                     sh '''
-                   export KUBECONFIG=/home/azureuser/.kube/config   # Adjust the path if necessary
-                   kubectl set image deployment/todoappproject-deployment todoappproject-container=achrafbrini007/todoappproject:latest --record
-                    kubectl rollout restart deployment/todoappproject-deployment
-                   kubectl rollout status deployment/todoappproject-deployment
+                        export KUBECONFIG=/home/azureuser/.kube/config  # Ensure this path is correct
+                        kubectl set image deployment/todoappproject-deployment todoappproject-container=yasser825/jenkins-kubernetes-docker-react:latest --record
+                        kubectl rollout restart deployment/todoappproject-deployment
+                        kubectl rollout status deployment/todoappproject-deployment
                     '''
                 }
             }
