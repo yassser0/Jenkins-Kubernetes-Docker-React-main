@@ -1,17 +1,26 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
+import './styles.css'; // Import a CSS file for additional styling
 
 const App = () => {
   const [todo, setTodo] = useState("");
   const [todos, setTodos] = useState([]);
   const [editingIndex, setEditingIndex] = useState(null);
   const [editText, setEditText] = useState("");
+  const [filter, setFilter] = useState("all"); // "all", "completed", "incomplete"
+  const [priority, setPriority] = useState("low"); // "low", "medium", "high"
+  const [dueDate, setDueDate] = useState("");
 
-  // Add a new todo item as an object { text, completed }
+  // Add a new todo item as an object { text, completed, priority, dueDate }
   const addTodo = () => {
     if (todo.trim() !== "") {
-      setTodos([...todos, { text: todo.trim(), completed: false }]);
+      setTodos([
+        ...todos,
+        { text: todo.trim(), completed: false, priority, dueDate },
+      ]);
       setTodo("");
+      setPriority("low");
+      setDueDate("");
     }
   };
 
@@ -54,115 +63,109 @@ const App = () => {
     }
   };
 
-  // Inline CSS styles with enhancements
-  const styles = {
-    container: {
-      maxWidth: "600px",
-      margin: "50px auto",
-      padding: "20px",
-      border: "2px solid #ccc",
-      borderRadius: "8px",
-      fontFamily: "Arial, sans-serif",
-      background: "#f9f9f9",
-      boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
-    },
-    input: {
-      width: "70%",
-      padding: "10px",
-      fontSize: "16px",
-      border: "1px solid #ddd",
-      borderRadius: "4px"
-    },
-    button: {
-      padding: "10px 15px",
-      marginLeft: "5px",
-      fontSize: "16px",
-      border: "none",
-      borderRadius: "4px",
-      cursor: "pointer",
-      background: "#007BFF",
-      color: "#fff"
-    },
-    clearButton: {
-      padding: "10px 15px",
-      marginTop: "10px",
-      fontSize: "16px",
-      border: "none",
-      borderRadius: "4px",
-      cursor: "pointer",
-      background: "#dc3545",
-      color: "#fff"
-    },
-    todoItem: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      padding: "10px 0",
-      borderBottom: "1px solid #eee"
-    },
-    todoText: {
-      flex: "1",
-      cursor: "pointer"
-    },
-    completedText: {
-      textDecoration: "line-through",
-      color: "#999"
-    },
-    actionButtons: {
-      marginLeft: "10px"
-    },
-    editInput: {
-      padding: "5px",
-      fontSize: "14px",
-      marginRight: "5px",
-      border: "1px solid #ddd",
-      borderRadius: "4px"
-    }
-  };
+  // Filter todos based on completion status
+  const filteredTodos = todos.filter((item) => {
+    if (filter === "completed") return item.completed;
+    if (filter === "incomplete") return !item.completed;
+    return true; // "all"
+  });
+
+  // Sort todos by priority
+  const sortedTodos = filteredTodos.sort((a, b) => {
+    const priorityOrder = { high: 3, medium: 2, low: 1 };
+    return priorityOrder[b.priority] - priorityOrder[a.priority];
+  });
 
   return (
-    <div style={styles.container}>
+    <div className="container">
       <h1>Todo App</h1>
-      <div>
+      <div className="input-section">
         <input
           type="text"
           placeholder="Enter a todo"
           value={todo}
           onChange={(e) => setTodo(e.target.value)}
           onKeyDown={handleKeyDown}
-          style={styles.input}
+          className="todo-input"
         />
-        <button onClick={addTodo} style={styles.button}>Add</button>
+        <select
+          value={priority}
+          onChange={(e) => setPriority(e.target.value)}
+          className="priority-select"
+        >
+          <option value="low">Low Priority</option>
+          <option value="medium">Medium Priority</option>
+          <option value="high">High Priority</option>
+        </select>
+        <input
+          type="date"
+          value={dueDate}
+          onChange={(e) => setDueDate(e.target.value)}
+          className="due-date-input"
+        />
+        <button onClick={addTodo} className="add-button">
+          Add
+        </button>
+      </div>
+      <div className="filter-section">
+        <button
+          onClick={() => setFilter("all")}
+          className={filter === "all" ? "active" : ""}
+        >
+          All
+        </button>
+        <button
+          onClick={() => setFilter("completed")}
+          className={filter === "completed" ? "active" : ""}
+        >
+          Completed
+        </button>
+        <button
+          onClick={() => setFilter("incomplete")}
+          className={filter === "incomplete" ? "active" : ""}
+        >
+          Incomplete
+        </button>
       </div>
       <p>Total Todos: {todos.length}</p>
-      <ul style={{ listStyle: "none", padding: 0 }}>
-        {todos.map((item, index) => (
-          <li key={index} style={styles.todoItem}>
+      <ul className="todo-list">
+        {sortedTodos.map((item, index) => (
+          <li key={index} className={`todo-item ${item.completed ? "completed" : ""}`}>
             {editingIndex === index ? (
               <>
                 <input
                   type="text"
                   value={editText}
                   onChange={(e) => setEditText(e.target.value)}
-                  style={styles.editInput}
+                  className="edit-input"
                 />
-                <button onClick={() => saveEdit(index)} style={styles.button}>Save</button>
-                <button onClick={() => setEditingIndex(null)} style={styles.button}>Cancel</button>
+                <button onClick={() => saveEdit(index)} className="save-button">
+                  Save
+                </button>
+                <button onClick={() => setEditingIndex(null)} className="cancel-button">
+                  Cancel
+                </button>
               </>
             ) : (
               <>
                 <span
-                  style={{
-                    ...styles.todoText,
-                    ...(item.completed ? styles.completedText : {})
-                  }}
+                  className={`todo-text ${item.completed ? "completed-text" : ""}`}
                   onClick={() => toggleComplete(index)}
                 >
-                  {item.text}
+                  {item.text} <span className={`priority ${item.priority}`}>{item.priority}</span>
+                  {item.dueDate && <span className="due-date">Due: {item.dueDate}</span>}
                 </span>
-                <div style={styles.actionButtons}>
-                  <button onClick={() => { setEditingIndex(index); setEditText(item.text); }} style={styles.button}>Edit</button>
-                  <button onClick={() => deleteTodo(index)} style={{ ...styles.button, background: "#dc3545" }}>
+                <div className="action-buttons">
+                  <button
+                    onClick={() => {
+                      setEditingIndex(index);
+                      setEditText(item.text);
+                    }}
+                    className="edit-button"
+                  >
+                    Edit
+                  </button>
+                  <button onClick={() => deleteTodo(index)} className="delete-button">
                     Delete
                   </button>
                 </div>
@@ -172,7 +175,9 @@ const App = () => {
         ))}
       </ul>
       {todos.length > 0 && (
-        <button onClick={clearTodos} style={styles.clearButton}>Clear All todos</button>
+        <button onClick={clearTodos} className="clear-button">
+          Clear All Todos
+        </button>
       )}
     </div>
   );
