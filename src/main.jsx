@@ -84,7 +84,7 @@ const App = () => {
 
   return (
     <div className={`container ${theme}`}>
-      <h1>Todo </h1>
+      <h1>Todo app</h1>
       <button onClick={toggleTheme} className="theme-toggle">
         {theme === "light" ? "🌙 Dark Mode" : "☀️ Light Mode"}
       </button>
